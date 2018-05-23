@@ -34,10 +34,12 @@ function getMusicDetail(musicId) {
     return null;
 }
 function doPlay() {
+    $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}`).addClass('active');
     currentAudioElem.play();
     isplaying = true;
 }
 function doPause() {
+    $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}`).removeClass('active');
     currentAudioElem.pause();
     isplaying = false;
 }
@@ -46,7 +48,6 @@ function doDestroy() {
         doPause();
     }
     $(currentAudioElem).off();
-    $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}`).removeClass('active');
     currentAudioElem = null;
     loading = false;
 }
@@ -64,7 +65,6 @@ function playMusic(musicDetail) {
         musicTotalTime.text(secondsToMinutes(currentAudioElem.duration));
         musicName.text(musicDetail.name);
         doPlay();
-        $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}`).addClass('active');
     });
     audio.on('timeupdate', function (event) {
         musicProgressbar.css('width', currentAudioElem.currentTime / currentAudioElem.duration * 100 + '%');
