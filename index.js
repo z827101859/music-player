@@ -168,6 +168,3 @@ addMusicDialogConfrim.on('click', function () {
     $('#addMusicDialog').modal('hide');
 });
 initDom();
-
-// 怎么添加本地文件呢？参考云课堂的audio视频章节
-// 这次添加了，下次又没有了怎么办呢？ 本地缓存，服务端持久化
