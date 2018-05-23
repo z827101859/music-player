@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>my player</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <link href="https://cdn.bootcss.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        @keyframes spin {
+            0% {
+                transform: rotate(360deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        .music-item.active {
+            background-color: #f4f4f4;
+        }
+
+        .music-item.active img {
+            animation-name: spin;
+            animation-duration: 2s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="modal fade" id="addMusicDialog" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加音乐</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="addMusicNameLabel">音乐名称</label>
+                        <input type="text" class="form-control" id="addMusicNameLabel" value="纸短情长">
+                    </div>
+                    <div class="form-group">
+                        <label for="addMusicUrlLabel">音乐url</label>
+                        <textarea type="text" class="form-control" id="addMusicUrlLabel">http://mailshark-test.nos-jd.163yun.com/document/static/8F6BEC7E55A47FB37C343FA551592AB2.mp3</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="addMusicDialogConfrim">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="my-3 p-3 bg-white">
+            <div>
+                <a style="text-decoration: none;" class="mr-3" href="javascript:void(0)" id="globalPlay">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAnElEQVQ4T63TbQ3CMBSF4bdOZmkOwMEcwByAE3CABRyAA6Zg5CRtQy79zHb/NufpSXfn2DjO5Afg1WNa4AOcgGsrYoHVBx/ACAgsTg5QSOEjcCsJJSDkBAhKtmkBim1agdDmAsy/bXoBQQLOQewBnsAE6AvFaQEWQNXjrT3A3d+a3c5cgzdwsHVT+5AC9EiqXN1Cgbv/TLXV/zv/AnooJBEYKsSgAAAAAElFTkSuQmCC"
+                    />
+                </a>
+                <a style="text-decoration: none;" href="javascript:void(0)" id="globalPause">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASUlEQVQ4T2NkoBAwUqifgSYGHIC6aj8DA0MjlN3AwMDgAGXDaDAXmwv+QxWuZmBgCENih0DZKHpGDRi2gUhxQiIpe9AkL5DkAgBTQx4RoqiZvgAAAABJRU5ErkJggg=="
+                    />
+                </a>
+            </div>
+            <div class="progress" style="height: 5px;">
+                <div id="musicProgressbar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0"
+                    aria-valuemax="100"></div>
+            </div>
+            <small class="d-block">
+                <span id="musicPlayedTime">00:00</span> /
+                <span id="musicTotalTime">00:00</span>
+                <span id="musicName"></span>
+            </small>
+        </div>
+        <div class="my-3 p-3 bg-white">
+            <h6 class="border-bottom pb-2 mb-0">Musics</h6>
+            <div id="musicList" style="cursor: pointer;">
+            </div>
+            <small class="d-block text-right mt-3">
+                <a href="javascript:void(0)" id="addMusicBtn">add music</a>
+            </small>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="demo4.js"></script>
+</body>
+
+</html>
