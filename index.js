@@ -34,12 +34,12 @@ function getMusicDetail(musicId) {
     return null;
 }
 function doPlay() {
-    $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}`).addClass('active');
+    $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}]`).addClass('active');
     currentAudioElem.play();
     isplaying = true;
 }
 function doPause() {
-    $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}`).removeClass('active');
+    $(`.music-item[music-id=${$(currentAudioElem).attr('music-id')}]`).removeClass('active');
     currentAudioElem.pause();
     isplaying = false;
 }
@@ -67,7 +67,7 @@ function playMusic(musicDetail) {
     let audio = $(`<audio music-id="${musicDetail.id}" src="${musicDetail.url}" preload="auto" loop="true"></audio>`);
     currentAudioElem = audio[0];
     $(document.body).append(currentAudioElem);
-    audio.on('canplay', function (event) {
+    audio.on('loadedmetadata', function (event) {
         loading = false;
         doInit(musicDetail);
     });
