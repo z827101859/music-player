@@ -43,11 +43,19 @@ function doPause() {
     currentAudioElem.pause();
     isplaying = false;
 }
+function doInit(musicDetail) {
+    musicProgressbar.css('width', '0%');
+    musicPlayedTime.text(secondsToMinutes(0));
+    musicTotalTime.text(secondsToMinutes(currentAudioElem.duration));
+    musicName.text(musicDetail.name);
+    doPlay();
+}
 function doDestroy() {
     if (isplaying) {
         doPause();
     }
     $(currentAudioElem).off();
+    $(currentAudioElem).remove();
     currentAudioElem = null;
     loading = false;
 }
@@ -56,15 +64,12 @@ function playMusic(musicDetail) {
         doDestroy();
     }
     loading = true;
-    let audio = $(`<audio music-id="${musicDetail.id}" src="${musicDetail.url}" preload="auto"></audio>`);
+    let audio = $(`<audio music-id="${musicDetail.id}" src="${musicDetail.url}" preload="auto" loop="true"></audio>`);
     currentAudioElem = audio[0];
+    $(document.body).append(currentAudioElem);
     audio.on('canplay', function (event) {
         loading = false;
-        musicProgressbar.css('width', '0%');
-        musicPlayedTime.text(secondsToMinutes(0));
-        musicTotalTime.text(secondsToMinutes(currentAudioElem.duration));
-        musicName.text(musicDetail.name);
-        doPlay();
+        doInit(musicDetail);
     });
     audio.on('timeupdate', function (event) {
         musicProgressbar.css('width', currentAudioElem.currentTime / currentAudioElem.duration * 100 + '%');
