@@ -80,11 +80,11 @@ const MusicDetailList = [
     {
         id: 'm1',
         name: '梦里梦外都是你',
-        url: 'https://mailshark-test.nos-jd.163yun.com/document/static/C11B987AC3D230B65491CCFCB967E674.m4a'
+        url: '//mailshark-test.nos-jd.163yun.com/document/static/C11B987AC3D230B65491CCFCB967E674.m4a'
     }, {
         id: 'm2',
         name: '我们的时光',
-        url: 'https://mailshark-test.nos-jd.163yun.com/document/static/C58C9F85A602E16983271F86F565F2E4.mp3'
+        url: '//mailshark-test.nos-jd.163yun.com/document/static/C58C9F85A602E16983271F86F565F2E4.mp3'
 
     }
 ];
@@ -155,10 +155,6 @@ addMusicDialogConfrim.on('click', function () {
     }
     if (!url) {
         alert('音乐url不能为空');
-        return;
-    }
-    if (!/^http/.test(url)) {
-        alert('音乐url必须是http的路径');
         return;
     }
     let musicDetail = {
