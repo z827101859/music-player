@@ -89,8 +89,12 @@ const MusicDetailList = [
         id: 'm2',
         name: '我们的时光',
         url: '//mailshark-test.nos-jd.163yun.com/document/static/C58C9F85A602E16983271F86F565F2E4.mp3'
-
+    }, {
+        id: 'm3',
+        name: '青柠',
+        url: '//mailshark-test.nos-jd.163yun.com/document/static/89F944885717FC8951BFFC7B4BB5261C.mp3'
     }
+
 ];
 const globalPlay = $('#globalPlay');
 const globalPause = $('#globalPause');
