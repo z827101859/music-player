@@ -75,11 +75,11 @@ const MusicDetailList = [
     {
         id: 'm1',
         name: '梦里梦外都是你',
-        url: 'http://mailshark-test.nos-jd.163yun.com/document/static/C11B987AC3D230B65491CCFCB967E674.m4a'
+        url: 'https://mailshark-test.nos-jd.163yun.com/document/static/C11B987AC3D230B65491CCFCB967E674.m4a'
     }, {
         id: 'm2',
         name: '我们的时光',
-        url: 'http://mailshark-test.nos-jd.163yun.com/document/static/C58C9F85A602E16983271F86F565F2E4.mp3'
+        url: 'https://mailshark-test.nos-jd.163yun.com/document/static/C58C9F85A602E16983271F86F565F2E4.mp3'
 
     }
 ];
