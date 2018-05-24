@@ -18,5 +18,6 @@ declare let currentAudio: {
     musicDetail: MusicDetail;
     musicItemElem: HTMLElement;
     audioElem: HTMLAudioElement;
+    inited: boolean;
     playing: boolean;
 };

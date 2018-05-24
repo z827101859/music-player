@@ -24,7 +24,7 @@ function secondsToMinutes(seconds: number): string {
     let tmp = Math.floor(seconds);
     let m = Math.floor(tmp / 60);
     let s = Math.floor(tmp % 60);
-    return `${m > 10 ? m : ('0' + m)}:${s > 10 ? s : ('0' + s)}`;
+    return `${m >= 10 ? m : ('0' + m)}:${s >= 10 ? s : ('0' + s)}`;
 }
 function doPlay(): void {
     currentAudio.musicItemElem.classList.add('playing');
@@ -46,26 +46,23 @@ let currentAudio: {
     musicDetail: MusicDetail,
     musicItemElem: HTMLElement,
     audioElem: HTMLAudioElement,
+    inited: boolean,
     playing: boolean
 } = null; //当前已经选中的歌曲
-musicListElem.addEventListener('click', function (event: MouseEvent) {
+musicListElem.addEventListener(/Mobile/.test(navigator.userAgent) ? 'touchstart' : 'click', function (event: MouseEvent) {
     let musicItemElem = getMusicItemElem((event.target as HTMLElement));
     let musicId = musicItemElem.getAttribute('music-id');
-    if (currentAudio) {
-        // 如果当前已经有选中的歌曲
-        if (musicId === currentAudio.musicDetail.id) {
-            //点击了当前的歌曲，就暂停播放或者继续播放
+    if (currentAudio) {// 如果当前已经有选中的歌曲
+        if (musicId === currentAudio.musicDetail.id) {//点击了当前的歌曲，就暂停播放或者继续播放
             if (currentAudio.playing) {
                 doPause();
             } else {
                 doPlay();
             }
             return;
-        } else {
-            //如果点击了其他歌曲，就把当前歌曲销毁，重新初始化点击的歌曲
-            if (currentAudio.playing) {
-                doPause();
-            }
+        } else {//如果点击了其他歌曲，就把当前歌曲销毁，重新初始化点击的歌曲
+            doPause();
+            currentAudio.audioElem = null;
             currentAudio = null;
         }
     }
@@ -78,18 +75,23 @@ musicListElem.addEventListener('click', function (event: MouseEvent) {
         musicDetail: musicDetail,
         musicItemElem: musicItemElem,
         audioElem: audio,
+        inited: false,
         playing: false
     };
     currentAudio.musicItemElem.classList.add('playing');
     musicProgressbar.style.width = '0%';
     musicPlayedTime.innerText = secondsToMinutes(0);
-    musicTotalTime.innerText = secondsToMinutes(currentAudio.audioElem.duration);
+    musicTotalTime.innerText = secondsToMinutes(0);
     musicName.innerText = '加载中...';
     audio.addEventListener('loadedmetadata', function (event) {
-        musicName.innerText = currentAudio.musicDetail.name;
         doPlay();
     });
     audio.addEventListener('timeupdate', function (event) {
+        if (currentAudio.audioElem.currentTime > 0.1 && !currentAudio.inited) {
+            musicName.innerText = currentAudio.musicDetail.name;
+            musicTotalTime.innerText = secondsToMinutes(currentAudio.audioElem.duration);
+            currentAudio.inited = true;
+        }
         musicProgressbar.style.width = currentAudio.audioElem.currentTime / currentAudio.audioElem.duration * 100 + '%';
         musicPlayedTime.innerText = secondsToMinutes(currentAudio.audioElem.currentTime);
     });
@@ -106,6 +108,6 @@ getMusicList().then((data) => {
                 </div>
             </div>
         `;
-    };
+    }
     musicListElem.innerHTML = html;
 });
