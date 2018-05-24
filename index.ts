@@ -47,12 +47,12 @@ let currentAudio: {
     musicItemElem: HTMLElement,
     audioElem: HTMLAudioElement,
     playing: boolean
-} = null; //当前音频是否正在播放
+} = null; //当前已经选中的歌曲
 musicListElem.addEventListener('click', function (event: MouseEvent) {
     let musicItemElem = getMusicItemElem((event.target as HTMLElement));
     let musicId = musicItemElem.getAttribute('music-id');
     if (currentAudio) {
-        // 如果当前已经有歌曲
+        // 如果当前已经有选中的歌曲
         if (musicId === currentAudio.musicDetail.id) {
             //点击了当前的歌曲，就暂停播放或者继续播放
             if (currentAudio.playing) {
@@ -70,31 +70,29 @@ musicListElem.addEventListener('click', function (event: MouseEvent) {
         }
     }
     let musicDetail = MusicCache.get(musicId);
-    if (musicDetail) {
-        //歌曲初始化
-        let audio = document.createElement('audio');
-        audio.setAttribute('preload', 'true');
-        audio.setAttribute('loop', 'true');
-        audio.setAttribute('src', musicDetail.url);
-        currentAudio = {
-            musicDetail: musicDetail,
-            musicItemElem: musicItemElem,
-            audioElem: audio,
-            playing: false
-        };
-        currentAudio.musicItemElem.classList.add('playing');
-        musicProgressbar.style.width = '0%';
-        musicPlayedTime.innerText = secondsToMinutes(0);
-        musicTotalTime.innerText = secondsToMinutes(currentAudio.audioElem.duration);
+    let audio = document.createElement('audio');
+    audio.setAttribute('preload', 'true');
+    audio.setAttribute('loop', 'true');
+    audio.setAttribute('src', musicDetail.url);
+    currentAudio = {
+        musicDetail: musicDetail,
+        musicItemElem: musicItemElem,
+        audioElem: audio,
+        playing: false
+    };
+    currentAudio.musicItemElem.classList.add('playing');
+    musicProgressbar.style.width = '0%';
+    musicPlayedTime.innerText = secondsToMinutes(0);
+    musicTotalTime.innerText = secondsToMinutes(currentAudio.audioElem.duration);
+    musicName.innerText = '加载中...';
+    audio.addEventListener('loadedmetadata', function (event) {
         musicName.innerText = currentAudio.musicDetail.name;
-        audio.addEventListener('loadedmetadata', function (event) {
-            doPlay();
-        });
-        audio.addEventListener('timeupdate', function (event) {
-            musicProgressbar.style.width = currentAudio.audioElem.currentTime / currentAudio.audioElem.duration * 100 + '%';
-            musicPlayedTime.innerText = secondsToMinutes(currentAudio.audioElem.currentTime);
-        });
-    }
+        doPlay();
+    });
+    audio.addEventListener('timeupdate', function (event) {
+        musicProgressbar.style.width = currentAudio.audioElem.currentTime / currentAudio.audioElem.duration * 100 + '%';
+        musicPlayedTime.innerText = secondsToMinutes(currentAudio.audioElem.currentTime);
+    });
 });
 getMusicList().then((data) => {
     let html = '';
@@ -108,8 +106,6 @@ getMusicList().then((data) => {
                 </div>
             </div>
         `;
-    }
+    };
     musicListElem.innerHTML = html;
 });
-
-

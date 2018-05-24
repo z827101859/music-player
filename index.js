@@ -38,12 +38,12 @@ var musicPlayedTime = document.querySelector('#musicPlayedTime');
 var musicTotalTime = document.querySelector('#musicTotalTime');
 var musicName = document.querySelector('#musicName');
 var MusicCache = new Map();
-var currentAudio = null; //当前音频是否正在播放
+var currentAudio = null; //当前已经选中的歌曲
 musicListElem.addEventListener('click', function (event) {
     var musicItemElem = getMusicItemElem(event.target);
     var musicId = musicItemElem.getAttribute('music-id');
     if (currentAudio) {
-        // 如果当前已经有歌曲
+        // 如果当前已经有选中的歌曲
         if (musicId === currentAudio.musicDetail.id) {
             //点击了当前的歌曲，就暂停播放或者继续播放
             if (currentAudio.playing) {
@@ -63,31 +63,29 @@ musicListElem.addEventListener('click', function (event) {
         }
     }
     var musicDetail = MusicCache.get(musicId);
-    if (musicDetail) {
-        //歌曲初始化
-        var audio = document.createElement('audio');
-        audio.setAttribute('preload', 'true');
-        audio.setAttribute('loop', 'true');
-        audio.setAttribute('src', musicDetail.url);
-        currentAudio = {
-            musicDetail: musicDetail,
-            musicItemElem: musicItemElem,
-            audioElem: audio,
-            playing: false
-        };
-        currentAudio.musicItemElem.classList.add('playing');
-        musicProgressbar.style.width = '0%';
-        musicPlayedTime.innerText = secondsToMinutes(0);
-        musicTotalTime.innerText = secondsToMinutes(currentAudio.audioElem.duration);
+    var audio = document.createElement('audio');
+    audio.setAttribute('preload', 'true');
+    audio.setAttribute('loop', 'true');
+    audio.setAttribute('src', musicDetail.url);
+    currentAudio = {
+        musicDetail: musicDetail,
+        musicItemElem: musicItemElem,
+        audioElem: audio,
+        playing: false
+    };
+    currentAudio.musicItemElem.classList.add('playing');
+    musicProgressbar.style.width = '0%';
+    musicPlayedTime.innerText = secondsToMinutes(0);
+    musicTotalTime.innerText = secondsToMinutes(currentAudio.audioElem.duration);
+    musicName.innerText = '加载中...';
+    audio.addEventListener('loadedmetadata', function (event) {
         musicName.innerText = currentAudio.musicDetail.name;
-        audio.addEventListener('loadedmetadata', function (event) {
-            doPlay();
-        });
-        audio.addEventListener('timeupdate', function (event) {
-            musicProgressbar.style.width = currentAudio.audioElem.currentTime / currentAudio.audioElem.duration * 100 + '%';
-            musicPlayedTime.innerText = secondsToMinutes(currentAudio.audioElem.currentTime);
-        });
-    }
+        doPlay();
+    });
+    audio.addEventListener('timeupdate', function (event) {
+        musicProgressbar.style.width = currentAudio.audioElem.currentTime / currentAudio.audioElem.duration * 100 + '%';
+        musicPlayedTime.innerText = secondsToMinutes(currentAudio.audioElem.currentTime);
+    });
 });
 getMusicList().then(function (data) {
     var html = '';
@@ -96,5 +94,6 @@ getMusicList().then(function (data) {
         MusicCache.set(detail.id, detail);
         html = html + ("\n            <div class=\"music-item media text-muted pt-3\" music-id=\"" + detail.id + "\">\n                <img style=\"width:32px;height:32px;\" class=\"mr-2 rounded\" src=\"//mailshark-test.nos-jd.163yun.com/document/static/344C59A98FD3693F923FE3E0FBBF0E3D.png\"/>\n                <div class=\"media-body pb-3 border-bottom\">\n                    <strong class=\"music-name\">" + detail.name + "</strong>\n                </div>\n            </div>\n        ");
     }
+    ;
     musicListElem.innerHTML = html;
 });
