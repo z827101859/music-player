@@ -3,27 +3,19 @@ interface MusicDetail {
     name: string,
     url: string
 }
-function getMusicItem(elem: HTMLElement): HTMLElement | null {
+function getMusicList(): Promise<Array<MusicDetail>> {
+    return fetch('getMusicList.json').then((response) => {
+        return response.json();
+    }).then((result) => {
+        return result.data;
+    });
+}
+function getMusicItemElem(elem: HTMLElement): HTMLElement | null {
     if (!elem || elem.classList.contains('music-item')) {
         return elem;
     } else {
-        return getMusicItem(elem.parentElement);
+        return getMusicItemElem(elem.parentElement);
     }
-}
-function initDom(): void {
-    let html = '';
-    for (let detail of MusicDetailList) {
-        html = html + `
-            <div class="music-item media text-muted pt-3" music-id="${detail.id}">
-                <img style="width:32px;height:32px;" class="mr-2 rounded" src="//mailshark-test.nos-jd.163yun.com/document/static/344C59A98FD3693F923FE3E0FBBF0E3D.png"
-                />
-                <div class="media-body pb-3 border-bottom">
-                    <strong class="music-name">${detail.name}</strong>
-                </div>
-            </div>
-        `;
-    }
-    musicListElem.innerHTML = html;
 }
 function secondsToMinutes(seconds: number): string {
     if (!seconds) {
@@ -34,66 +26,36 @@ function secondsToMinutes(seconds: number): string {
     let s = Math.floor(tmp % 60);
     return `${m > 10 ? m : ('0' + m)}:${s > 10 ? s : ('0' + s)}`;
 }
-function getMusicDetail(musicId: string): MusicDetail | null {
-    for (let detail of MusicDetailList) {
-        if (detail.id === musicId) {
-            return detail;
-        }
-    }
-    return null;
-}
 function doPlay(): void {
-    currentMedia.musicItemElem.classList.add('playing');
-    currentMedia.audioElem.play();
-    currentMedia.playing = true;
+    currentAudio.musicItemElem.classList.add('playing');
+    currentAudio.audioElem.play();
+    currentAudio.playing = true;
 }
 function doPause(): void {
-    currentMedia.musicItemElem.classList.remove('playing');
-    currentMedia.audioElem.pause();
-    currentMedia.playing = false;
+    currentAudio.musicItemElem.classList.remove('playing');
+    currentAudio.audioElem.pause();
+    currentAudio.playing = false;
 }
-const MusicDetailList: Array<MusicDetail> = [
-    {
-        id: 'm1',
-        name: '梦里梦外都是你',
-        url: '//mailshark-test.nos-jd.163yun.com/document/static/C11B987AC3D230B65491CCFCB967E674.m4a'
-    }, {
-        id: 'm2',
-        name: '我们的时光',
-        url: '//mailshark-test.nos-jd.163yun.com/document/static/C58C9F85A602E16983271F86F565F2E4.mp3'
-    }, {
-        id: 'm3',
-        name: '青柠',
-        url: '//mailshark-test.nos-jd.163yun.com/document/static/89F944885717FC8951BFFC7B4BB5261C.mp3'
-    }, {
-        id: 'm4',
-        name: '纸短情长',
-        url: '//mailshark-test.nos-jd.163yun.com/document/static/8F6BEC7E55A47FB37C343FA551592AB2.mp3'
-    }
-];
 const musicListElem: HTMLElement = document.querySelector('#musicList');
 const musicProgressbar: HTMLElement = document.querySelector('#musicProgressbar');
 const musicPlayedTime: HTMLElement = document.querySelector('#musicPlayedTime');
 const musicTotalTime: HTMLElement = document.querySelector('#musicTotalTime');
 const musicName: HTMLElement = document.querySelector('#musicName');
-let currentMedia: {
+const MusicCache: Map<string, MusicDetail> = new Map();
+let currentAudio: {
     musicDetail: MusicDetail,
     musicItemElem: HTMLElement,
     audioElem: HTMLAudioElement,
     playing: boolean
 } = null; //当前音频是否正在播放
 musicListElem.addEventListener('click', function (event: MouseEvent) {
-    let target = event.target as HTMLElement;
-    let musicItem = getMusicItem(target);
-    if (!musicItem) {
-        return;
-    }
-    let musicId = musicItem.getAttribute('music-id');
-    if (currentMedia) {
+    let musicItemElem = getMusicItemElem((event.target as HTMLElement));
+    let musicId = musicItemElem.getAttribute('music-id');
+    if (currentAudio) {
         // 如果当前已经有歌曲
-        if (musicId === currentMedia.musicDetail.id) {
+        if (musicId === currentAudio.musicDetail.id) {
             //点击了当前的歌曲，就暂停播放或者继续播放
-            if (currentMedia.playing) {
+            if (currentAudio.playing) {
                 doPause();
             } else {
                 doPlay();
@@ -101,40 +63,53 @@ musicListElem.addEventListener('click', function (event: MouseEvent) {
             return;
         } else {
             //如果点击了其他歌曲，就把当前歌曲销毁，重新初始化点击的歌曲
-            if (currentMedia.playing) {
+            if (currentAudio.playing) {
                 doPause();
             }
-            currentMedia.audioElem = null
-            currentMedia = null;
+            currentAudio = null;
         }
     }
-    let musicDetail = getMusicDetail(musicId);
+    let musicDetail = MusicCache.get(musicId);
     if (musicDetail) {
         //歌曲初始化
         let audio = document.createElement('audio');
         audio.setAttribute('preload', 'true');
         audio.setAttribute('loop', 'true');
         audio.setAttribute('src', musicDetail.url);
-        currentMedia = {
+        currentAudio = {
             musicDetail: musicDetail,
-            musicItemElem: musicItem,
+            musicItemElem: musicItemElem,
             audioElem: audio,
             playing: false
         };
-        currentMedia.musicItemElem.classList.add('playing');
+        currentAudio.musicItemElem.classList.add('playing');
         musicProgressbar.style.width = '0%';
         musicPlayedTime.innerText = secondsToMinutes(0);
-        musicTotalTime.innerText = secondsToMinutes(currentMedia.audioElem.duration);
-        musicName.innerText = currentMedia.musicDetail.name;
+        musicTotalTime.innerText = secondsToMinutes(currentAudio.audioElem.duration);
+        musicName.innerText = currentAudio.musicDetail.name;
         audio.addEventListener('loadedmetadata', function (event) {
             doPlay();
         });
         audio.addEventListener('timeupdate', function (event) {
-            musicProgressbar.style.width = currentMedia.audioElem.currentTime / currentMedia.audioElem.duration * 100 + '%';
-            musicPlayedTime.innerText = secondsToMinutes(currentMedia.audioElem.currentTime);
+            musicProgressbar.style.width = currentAudio.audioElem.currentTime / currentAudio.audioElem.duration * 100 + '%';
+            musicPlayedTime.innerText = secondsToMinutes(currentAudio.audioElem.currentTime);
         });
     }
 });
-initDom();
+getMusicList().then((data) => {
+    let html = '';
+    for (let detail of data) {
+        MusicCache.set(detail.id, detail);
+        html = html + `
+            <div class="music-item media text-muted pt-3" music-id="${detail.id}">
+                <img style="width:32px;height:32px;" class="mr-2 rounded" src="//mailshark-test.nos-jd.163yun.com/document/static/344C59A98FD3693F923FE3E0FBBF0E3D.png"/>
+                <div class="media-body pb-3 border-bottom">
+                    <strong class="music-name">${detail.name}</strong>
+                </div>
+            </div>
+        `;
+    }
+    musicListElem.innerHTML = html;
+});
 
 
